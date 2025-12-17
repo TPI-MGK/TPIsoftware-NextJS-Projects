@@ -1,222 +1,317 @@
-import postgres from 'postgres';
 import {
   CustomerField,
   CustomersTableType,
   InvoiceForm,
   InvoicesTable,
+  LatestInvoice,
   LatestInvoiceRaw,
   Revenue,
-} from './definitions';
-import { formatCurrency } from './utils';
+} from "./definitions";
+import { formatCurrency } from "./utils";
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+// --------------------------
+// Mock Data
+// --------------------------
+
+const revenue: Revenue[] = [
+  { month: "Jan", revenue: 2000 },
+  { month: "Feb", revenue: 1800 },
+  { month: "Mar", revenue: 2200 },
+  { month: "Apr", revenue: 2500 },
+  { month: "May", revenue: 2300 },
+  { month: "Jun", revenue: 3200 },
+  { month: "Jul", revenue: 3500 },
+  { month: "Aug", revenue: 3700 },
+  { month: "Sep", revenue: 2500 },
+  { month: "Oct", revenue: 2800 },
+  { month: "Nov", revenue: 3000 },
+  { month: "Dec", revenue: 4800 },
+];
+
+const latestInvoicesRaw: LatestInvoiceRaw[] = [
+  {
+    id: "INV001",
+    amount: 15795,
+    name: "Lee Robinson",
+    image_url: "/customers/lee-robinson.png",
+    email: "lee@vercel.com",
+  },
+  {
+    id: "INV002",
+    amount: 20348,
+    name: "Michael Novotny",
+    image_url: "/customers/michael-novotny.png",
+    email: "michael@novotny.com",
+  },
+  {
+    id: "INV003",
+    amount: 3040,
+    name: "Amy Burns",
+    image_url: "/customers/amy-burns.png",
+    email: "amy@burns.com",
+  },
+  {
+    id: "INV004",
+    amount: 44800,
+    name: "Balazs Orban",
+    image_url: "/customers/balazs-orban.png",
+    email: "balazs@orban.com",
+  },
+  {
+    id: "INV005",
+    amount: 34577,
+    name: "Delba de Oliveira",
+    image_url: "/customers/delba-de-oliveira.png",
+    email: "delba@oliveira.com",
+  },
+];
+
+const latestInvoices: LatestInvoice[] = latestInvoicesRaw.map((inv) => ({
+  ...inv,
+  amount: formatCurrency(inv.amount),
+}));
+
+const cardData = {
+  numberOfInvoices: 48,
+  numberOfCustomers: 12,
+  totalPaidInvoices: formatCurrency(452345),
+  totalPendingInvoices: formatCurrency(12456),
+};
+
+const allInvoices: InvoicesTable[] = [
+  {
+    id: "INV001",
+    customer_id: "cust_1",
+    amount: 15795,
+    date: "2024-12-15",
+    status: "paid",
+    name: "Lee Robinson",
+    email: "lee@vercel.com",
+    image_url: "/customers/lee-robinson.png",
+  },
+  {
+    id: "INV002",
+    customer_id: "cust_2",
+    amount: 20348,
+    date: "2024-12-10",
+    status: "pending",
+    name: "Michael Novotny",
+    email: "michael@novotny.com",
+    image_url: "/customers/michael-novotny.png",
+  },
+  {
+    id: "INV003",
+    customer_id: "cust_3",
+    amount: 3040,
+    date: "2024-12-05",
+    status: "paid",
+    name: "Amy Burns",
+    email: "amy@burns.com",
+    image_url: "/customers/amy-burns.png",
+  },
+  {
+    id: "INV004",
+    customer_id: "cust_4",
+    amount: 44800,
+    date: "2024-11-28",
+    status: "pending",
+    name: "Balazs Orban",
+    email: "balazs@orban.com",
+    image_url: "/customers/balazs-orban.png",
+  },
+  {
+    id: "INV005",
+    customer_id: "cust_5",
+    amount: 34577,
+    date: "2024-11-20",
+    status: "paid",
+    name: "Delba de Oliveira",
+    email: "delba@oliveira.com",
+    image_url: "/customers/delba-de-oliveira.png",
+  },
+  {
+    id: "INV006",
+    customer_id: "cust_1",
+    amount: 12500,
+    date: "2024-11-15",
+    status: "paid",
+    name: "Lee Robinson",
+    email: "lee@vercel.com",
+    image_url: "/customers/lee-robinson.png",
+  },
+  {
+    id: "INV007",
+    customer_id: "cust_6",
+    amount: 8900,
+    date: "2024-11-10",
+    status: "pending",
+    name: "John Doe",
+    email: "john@example.com",
+    image_url: "/customers/john-doe.png",
+  },
+  {
+    id: "INV008",
+    customer_id: "cust_7",
+    amount: 5600,
+    date: "2024-11-05",
+    status: "paid",
+    name: "Jane Smith",
+    email: "jane@example.com",
+    image_url: "/customers/jane-smith.png",
+  },
+];
+
+const customers: CustomerField[] = [
+  { id: "cust_1", name: "Lee Robinson" },
+  { id: "cust_2", name: "Michael Novotny" },
+  { id: "cust_3", name: "Amy Burns" },
+  { id: "cust_4", name: "Balazs Orban" },
+  { id: "cust_5", name: "Delba de Oliveira" },
+  { id: "cust_6", name: "John Doe" },
+  { id: "cust_7", name: "Jane Smith" },
+];
+
+// 用於 Customers 頁面的 mock data
+const customersTableRaw: CustomersTableType[] = [
+  {
+    id: "cust_1",
+    name: "Lee Robinson",
+    email: "lee@vercel.com",
+    image_url: "/customers/lee-robinson.png",
+    total_invoices: 8,
+    total_pending: 15795,
+    total_paid: 300000,
+  },
+  {
+    id: "cust_2",
+    name: "Michael Novotny",
+    email: "michael@novotny.com",
+    image_url: "/customers/michael-novotny.png",
+    total_invoices: 6,
+    total_pending: 20348,
+    total_paid: 180000,
+  },
+  {
+    id: "cust_3",
+    name: "Amy Burns",
+    email: "amy@burns.com",
+    image_url: "/customers/amy-burns.png",
+    total_invoices: 4,
+    total_pending: 0,
+    total_paid: 45000,
+  },
+  {
+    id: "cust_4",
+    name: "Balazs Orban",
+    email: "balazs@orban.com",
+    image_url: "/customers/balazs-orban.png",
+    total_invoices: 5,
+    total_pending: 44800,
+    total_paid: 120000,
+  },
+  {
+    id: "cust_5",
+    name: "Delba de Oliveira",
+    email: "delba@oliveira.com",
+    image_url: "/customers/delba-de-oliveira.png",
+    total_invoices: 7,
+    total_pending: 0,
+    total_paid: 280000,
+  },
+];
+
+// --------------------------
+// Adjusted Functions
+// --------------------------
 
 export async function fetchRevenue() {
-  try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
-
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    const data = await sql<Revenue[]>`SELECT * FROM revenue`;
-
-    // console.log('Data fetch completed after 3 seconds.');
-
-    return data;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch revenue data.');
-  }
+  // await new Promise((resolve) => setTimeout(resolve, 1500));
+  return revenue;
 }
 
 export async function fetchLatestInvoices() {
-  try {
-    // 獲取最後 5 筆發票，按日期排序
-    const data = await sql<LatestInvoiceRaw[]>`
-      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      ORDER BY invoices.date DESC
-      LIMIT 5`;
-
-    const latestInvoices = data.map((invoice) => ({
-      ...invoice,
-      amount: formatCurrency(invoice.amount),
-    }));
-    return latestInvoices;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch the latest invoices.');
-  }
+  return latestInvoices;
 }
 
-// 平行資料獲取
-// 避免瀑布的一個常見方法是同時發起所有資料請求 — 即平行 (in parallel)。
-// 在 JavaScript 中，您可以使用 `Promise.all()` 或 `Promise.allSettled()` 函數來同時發起所有 promises。
 export async function fetchCardData() {
-  try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
-    const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
-    const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
-    const invoiceStatusPromise = sql`SELECT
-         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-         FROM invoices`;
-
-    const data = await Promise.all([
-      invoiceCountPromise,
-      customerCountPromise,
-      invoiceStatusPromise,
-    ]);
-
-    const numberOfInvoices = Number(data[0][0].count ?? '0');
-    const numberOfCustomers = Number(data[1][0].count ?? '0');
-    const totalPaidInvoices = formatCurrency(data[2][0].paid ?? '0');
-    const totalPendingInvoices = formatCurrency(data[2][0].pending ?? '0');
-
-    return {
-      numberOfCustomers,
-      numberOfInvoices,
-      totalPaidInvoices,
-      totalPendingInvoices,
-    };
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch card data.');
-  }
+  return cardData;
 }
 
 const ITEMS_PER_PAGE = 6;
+
 export async function fetchFilteredInvoices(
   query: string,
-  currentPage: number,
+  currentPage: number
 ) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  let filtered = allInvoices;
 
-  try {
-    const invoices = await sql<InvoicesTable[]>`
-      SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
-
-    return invoices;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoices.');
+  if (query) {
+    const lowerQuery = query.toLowerCase();
+    filtered = allInvoices.filter(
+      (inv) =>
+        inv.name.toLowerCase().includes(lowerQuery) ||
+        inv.email.toLowerCase().includes(lowerQuery) ||
+        inv.amount.toString().includes(lowerQuery) ||
+        inv.date.includes(lowerQuery) ||
+        inv.status.includes(lowerQuery)
+    );
   }
+
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  return filtered.slice(offset, offset + ITEMS_PER_PAGE);
 }
 
 export async function fetchInvoicesPages(query: string) {
-  try {
-    const data = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
-    WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `;
+  let count = allInvoices.length;
 
-    const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
-    return totalPages;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of invoices.');
+  if (query) {
+    const lowerQuery = query.toLowerCase();
+    const filtered = allInvoices.filter(
+      (inv) =>
+        inv.name.toLowerCase().includes(lowerQuery) ||
+        inv.email.toLowerCase().includes(lowerQuery) ||
+        inv.amount.toString().includes(lowerQuery) ||
+        inv.date.includes(lowerQuery) ||
+        inv.status.includes(lowerQuery)
+    );
+    count = filtered.length;
   }
+
+  return Math.ceil(count / ITEMS_PER_PAGE);
 }
 
 export async function fetchInvoiceById(id: string) {
-  try {
-    const data = await sql<InvoiceForm[]>`
-      SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
-    `;
+  const found = allInvoices.find((inv) => inv.id === id);
+  if (!found) return undefined;
 
-    const invoice = data.map((invoice) => ({
-      ...invoice,
-      // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
-    }));
-
-    return invoice[0];
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoice.');
-  }
+  return {
+    id: found.id,
+    customer_id: found.customer_id,
+    amount: found.amount / 100, // 轉成 dollars
+    status: found.status,
+  };
 }
 
 export async function fetchCustomers() {
-  try {
-    const customers = await sql<CustomerField[]>`
-      SELECT
-        id,
-        name
-      FROM customers
-      ORDER BY name ASC
-    `;
-
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch all customers.');
-  }
+  return customers;
 }
 
 export async function fetchFilteredCustomers(query: string) {
-  try {
-    const data = await sql<CustomersTableType[]>`
-		SELECT
-		  customers.id,
-		  customers.name,
-		  customers.email,
-		  customers.image_url,
-		  COUNT(invoices.id) AS total_invoices,
-		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
-		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-		FROM customers
-		LEFT JOIN invoices ON customers.id = invoices.customer_id
-		WHERE
-		  customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`}
-		GROUP BY customers.id, customers.name, customers.email, customers.image_url
-		ORDER BY customers.name ASC
-	  `;
+  let filtered = customersTableRaw;
 
-    const customers = data.map((customer) => ({
-      ...customer,
-      total_pending: formatCurrency(customer.total_pending),
-      total_paid: formatCurrency(customer.total_paid),
-    }));
-
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch customer table.');
+  if (query) {
+    const lowerQuery = query.toLowerCase();
+    filtered = customersTableRaw.filter(
+      (c) =>
+        c.name.toLowerCase().includes(lowerQuery) ||
+        c.email.toLowerCase().includes(lowerQuery)
+    );
   }
+
+  // 直接 map 轉換成畫面需要的 string 格式
+  return filtered.map((customer) => ({
+    ...customer,
+    total_pending: formatCurrency(customer.total_pending),
+    total_paid: formatCurrency(customer.total_paid),
+  }));
 }

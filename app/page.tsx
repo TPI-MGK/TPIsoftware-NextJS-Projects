@@ -1,8 +1,8 @@
-import AcmeLogo from '@/app/ui/acme-logo';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import { lusitana } from '@/app/ui/fonts';
-import Image from 'next/image';
+import AcmeLogo from "@/app/ui/acme-logo";
+import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { lusitana } from "@/app/ui/fonts";
+import Image from "next/image";
 
 export default function Page() {
   return (
@@ -12,11 +12,11 @@ export default function Page() {
       </div>
       <div className="mt-4 flex grow flex-col gap-4 md:flex-row">
         <div className="flex flex-col justify-center gap-6 rounded-lg bg-gray-50 px-6 py-10 md:w-2/5 md:px-20">
-        <div
-  className="relative w-0 h-0 border-l-[15px] border-r-[15px] border-b-[26px] border-l-transparent border-r-transparent border-b-black"
-/>
-          <p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
-            <strong>Welcome to Acme.</strong> This is the example for the{' '}
+          <div className="relative w-0 h-0 border-l-[15px] border-r-[15px] border-b-[26px] border-l-transparent border-r-transparent border-b-black" />
+          <p
+            className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}
+          >
+            <strong>Welcome to Acme.</strong> This is the example for the{" "}
             <a href="https://nextjs.org/learn/" className="text-blue-500">
               Next.js Learn Course
             </a>
@@ -32,8 +32,20 @@ export default function Page() {
         <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
           {/* 將Image `width` 設為 `1000`，`height` 設為 `760` 像素。為您的圖片設定寬度和高度以避免版面配置位移是一個好習慣，這些值應與來源圖片的長寬比相同。 */}
           {/* Image的 `hidden` class 用於在行動裝置螢幕上從 DOM 中移除圖片，而 `md:block` 則用於在桌面螢幕上顯示圖片。 */}
-          <Image src="/hero-desktop.png" width={1000} height={760} className='hidden md:block' alt='儀表板專案的螢幕截圖，顯示桌面版本'/>
-          <Image src="/hero-mobile.png" width={560} height={620} className='block md:hidden' alt='儀表板專案的螢幕截圖，顯示行動版本'/>
+          <Image
+            src="/hero-desktop.png"
+            width={1000}
+            height={760}
+            className="hidden md:block"
+            alt="儀表板專案的螢幕截圖，顯示桌面版本"
+          />
+          <Image
+            src="/hero-mobile.png"
+            width={560}
+            height={620}
+            className="block md:hidden"
+            alt="儀表板專案的螢幕截圖，顯示行動版本"
+          />
         </div>
       </div>
     </main>
