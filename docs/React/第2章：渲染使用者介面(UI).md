@@ -8,6 +8,7 @@
 然後瀏覽器會讀取 HTML 並建構文件物件模型 (Document Object Model, DOM)。
 
 ## 什麼是 DOM？
+
 DOM 是 HTML 元素的物件表示法。它充當您的程式碼和使用者介面之間的橋樑，並具有帶有父子關係的樹狀結構。
 
 ![](https://nextjs.org/_next/image?url=https%3A%2F%2Fh8DxKfmAPhn8O0p3.public.blob.vercel-storage.com%2Flearn%2Fdark%2Flearn-dom-and-ui.png&w=3840&q=75)
@@ -16,6 +17,7 @@ DOM 是 HTML 元素的物件表示法。它充當您的程式碼和使用者介�
 在下一節中，您將學習如何使用 JavaScript 和 DOM 方法。
 
 ## 額外資源：
+
 - [DOM 簡介](https://developer.mozilla.org/docs/Web/API/Document_Object_Model/Introduction)
 - [如何在 Google Chrome 中檢視 DOM](https://developer.chrome.com/docs/devtools/dom/)
 - [如何在 Firefox 中檢視 DOM](https://firefox-source-docs.mozilla.org/devtools-user/page_inspector/how_to/examine_and_edit_the_dom/)

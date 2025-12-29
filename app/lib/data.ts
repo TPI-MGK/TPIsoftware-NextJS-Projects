@@ -225,15 +225,17 @@ const customersTableRaw: CustomersTableType[] = [
 // --------------------------
 
 export async function fetchRevenue() {
-  // await new Promise((resolve) => setTimeout(resolve, 1500));
+  await new Promise((resolve) => setTimeout(resolve, 1500));
   return revenue;
 }
 
 export async function fetchLatestInvoices() {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   return latestInvoices;
 }
 
 export async function fetchCardData() {
+  await new Promise((resolve) => setTimeout(resolve, 1200));
   return cardData;
 }
 

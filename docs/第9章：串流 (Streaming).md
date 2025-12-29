@@ -6,11 +6,11 @@
 
 以下是我們將涵蓋的主題：
 
--   什麼是串流 (streaming) 及其使用時機。
--   如何使用 `loading.tsx` 和 Suspense 實現串流。
--   什麼是載入骨架 (loading skeletons)。
--   什麼是 Next.js 路由群組 (Route Groups) 及其使用時機。
--   在您的應用程式中應於何處放置 React Suspense 邊界。
+- 什麼是串流 (streaming) 及其使用時機。
+- 如何使用 `loading.tsx` 和 Suspense 實現串流。
+- 什麼是載入骨架 (loading skeletons)。
+- 什麼是 Next.js 路由群組 (Route Groups) 及其使用時機。
+- 在您的應用程式中應於何處放置 React Suspense 邊界。
 
 ## 什麼是串流 (Streaming)？
 
@@ -25,6 +25,7 @@
 串流與 React 的元件模型非常契合，因為每個元件都可以被視為一個區塊。
 
 在 Next.js 中，您有兩種方式可以實現串流：
+
 1.  在**頁面層級**，使用 `loading.tsx` 檔案（它會為您建立 `<Suspense>`）。
 2.  在**元件層級**，使用 `<Suspense>` 進行更細粒度的控制。
 
@@ -35,6 +36,7 @@
 在 `/app/dashboard` 資料夾中，建立一個名為 `loading.tsx` 的新檔案：
 
 `/app/dashboard/loading.tsx`
+
 ```tsx
 export default function Loading() {
   return <div>Loading...</div>;
@@ -45,9 +47,9 @@ export default function Loading() {
 
 這裡發生了幾件事：
 
--   `loading.tsx` 是一個基於 React Suspense 的特殊 Next.js 檔案。它允許您建立一個備用 UI (fallback UI)，在頁面內容載入時作為替代顯示。
--   由於 `<SideNav>` 是靜態的，它會立即顯示。使用者可以在動態內容載入時與 `<SideNav>` 互動。
--   使用者不必等待頁面完成載入才能導航離開（這稱為**可中斷導航 (interruptable navigation)**）。
+- `loading.tsx` 是一個基於 React Suspense 的特殊 Next.js 檔案。它允許您建立一個備用 UI (fallback UI)，在頁面內容載入時作為替代顯示。
+- 由於 `<SideNav>` 是靜態的，它會立即顯示。使用者可以在動態內容載入時與 `<SideNav>` 互動。
+- 使用者不必等待頁面完成載入才能導航離開（這稱為**可中斷導航 (interruptable navigation)**）。
 
 恭喜！您剛剛實現了串流。但我們可以做得更多來改善使用者體驗。讓我們顯示一個載入骨架，而不是「Loading…」文字。
 
@@ -58,9 +60,10 @@ export default function Loading() {
 在您的 `loading.tsx` 檔案中，匯入一個名為 `<DashboardSkeleton>` 的新元件：
 
 `/app/dashboard/loading.tsx`
+
 ```tsx
-import DashboardSkeleton from '@/app/ui/skeletons';
- 
+import DashboardSkeleton from "@/app/ui/skeletons";
+
 export default function Loading() {
   return <DashboardSkeleton />;
 }
@@ -95,13 +98,14 @@ export default function Loading() {
 1.  從 `/dashboard/(overview)/page.tsx` 中**刪除**所有 `fetchRevenue()` 的實例及其資料：
 
     `/app/dashboard/(overview)/page.tsx`
+
     ```tsx
     import { Card } from '@/app/ui/dashboard/cards';
     import RevenueChart from '@/app/ui/dashboard/revenue-chart';
     import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
     import { lusitana } from '@/app/ui/fonts';
     import { fetchLatestInvoices, fetchCardData } from '@/app/lib/data'; // 刪除 fetchRevenue
-    
+
     export default async function Page() {
       // const revenue = await fetchRevenue() // 刪除此行
       const latestInvoices = await fetchLatestInvoices();
@@ -111,7 +115,7 @@ export default function Loading() {
         totalPaidInvoices,
         totalPendingInvoices,
       } = await fetchCardData();
-    
+
       return (
         // ...
       );
@@ -121,15 +125,16 @@ export default function Loading() {
 2.  接下來，從 React 匯入 `<Suspense>`，並將它包裹在 `<RevenueChart />` 周圍。您可以傳遞一個名為 `<RevenueChartSkeleton>` 的備用元件給它。
 
     `/app/dashboard/(overview)/page.tsx`
+
     ```tsx
-    import { Card } from '@/app/ui/dashboard/cards';
-    import RevenueChart from '@/app/ui/dashboard/revenue-chart';
-    import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
-    import { lusitana } from '@/app/ui/fonts';
-    import { fetchLatestInvoices, fetchCardData } from '@/app/lib/data';
-    import { Suspense } from 'react';
-    import { RevenueChartSkeleton } from '@/app/ui/skeletons';
-    
+    import { Card } from "@/app/ui/dashboard/cards";
+    import RevenueChart from "@/app/ui/dashboard/revenue-chart";
+    import LatestInvoices from "@/app/ui/dashboard/latest-invoices";
+    import { lusitana } from "@/app/ui/fonts";
+    import { fetchLatestInvoices, fetchCardData } from "@/app/lib/data";
+    import { Suspense } from "react";
+    import { RevenueChartSkeleton } from "@/app/ui/skeletons";
+
     export default async function Page() {
       const latestInvoices = await fetchLatestInvoices();
       const {
@@ -138,16 +143,24 @@ export default function Loading() {
         totalPaidInvoices,
         totalPendingInvoices,
       } = await fetchCardData();
-    
+
       return (
         <main>
           <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
             Dashboard
           </h1>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <Card title="Collected" value={totalPaidInvoices} type="collected" />
+            <Card
+              title="Collected"
+              value={totalPaidInvoices}
+              type="collected"
+            />
             <Card title="Pending" value={totalPendingInvoices} type="pending" />
-            <Card title="Total Invoices" value={numberOfInvoices} type="invoices" />
+            <Card
+              title="Total Invoices"
+              value={numberOfInvoices}
+              type="invoices"
+            />
             <Card
               title="Total Customers"
               value={numberOfCustomers}
@@ -168,24 +181,25 @@ export default function Loading() {
 3.  最後，更新 `<RevenueChart>` 元件以獲取自己的資料，並移除傳遞給它的 `prop`：
 
     `/app/ui/dashboard/revenue-chart.tsx`
+
     ```tsx
     import { generateYAxis } from '@/app/lib/utils';
     import { CalendarIcon } from '@heroicons/react/24/outline';
     import { lusitana } from '@/app/ui/fonts';
     import { fetchRevenue } from '@/app/lib/data';
-    
+
     // ...
-    
+
     export default async function RevenueChart() { // 將元件設為 async，移除 props
       const revenue = await fetchRevenue(); // 在元件內部獲取資料
-    
+
       const chartHeight = 350;
       const { yAxisLabels, topLabel } = generateYAxis(revenue);
-    
+
       if (!revenue || revenue.length === 0) {
         return <p className="mt-4 text-gray-400">No data available.</p>;
       }
-    
+
       return (
         // ...
       );
@@ -198,8 +212,8 @@ export default function Loading() {
 
 現在輪到您了！練習您剛剛學到的知識，串流 `<LatestInvoices>` 元件。
 
--   將 `fetchLatestInvoices()` 從頁面下移到 `<LatestInvoices>` 元件中。
--   將該元件包裹在一個 `<Suspense>` 邊界中，並使用一個名為 `<LatestInvoicesSkeleton>` 的備用 UI (fallback UI) 載入骨架。
+- 將 `fetchLatestInvoices()` 從頁面下移到 `<LatestInvoices>` 元件中。
+- 將該元件包裹在一個 `<Suspense>` 邊界中，並使用一個名為 `<LatestInvoicesSkeleton>` 的備用 UI (fallback UI) 載入骨架。
 
 <details>
 <summary>點此展開解決方案</summary>
@@ -207,18 +221,19 @@ export default function Loading() {
 **儀表板頁面：**
 
 `/app/dashboard/(overview)/page.tsx`
+
 ```tsx
-import { Card } from '@/app/ui/dashboard/cards';
-import RevenueChart from '@/app/ui/dashboard/revenue-chart';
-import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
-import { lusitana } from '@/app/ui/fonts';
-import { fetchCardData } from '@/app/lib/data'; // 移除 fetchLatestInvoices
-import { Suspense } from 'react';
+import { Card } from "@/app/ui/dashboard/cards";
+import RevenueChart from "@/app/ui/dashboard/revenue-chart";
+import LatestInvoices from "@/app/ui/dashboard/latest-invoices";
+import { lusitana } from "@/app/ui/fonts";
+import { fetchCardData } from "@/app/lib/data"; // 移除 fetchLatestInvoices
+import { Suspense } from "react";
 import {
   RevenueChartSkeleton,
   LatestInvoicesSkeleton,
-} from '@/app/ui/skeletons';
- 
+} from "@/app/ui/skeletons";
+
 export default async function Page() {
   // 移除 `const latestInvoices = await fetchLatestInvoices()`
   const {
@@ -227,7 +242,7 @@ export default async function Page() {
     totalPaidInvoices,
     totalPendingInvoices,
   } = await fetchCardData();
- 
+
   return (
     <main>
       <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
@@ -259,16 +274,17 @@ export default async function Page() {
 **`<LatestInvoices>` 元件（記得移除 props）：**
 
 `/app/ui/dashboard/latest-invoices.tsx`
+
 ```tsx
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import Image from 'next/image';
 import { lusitana } from '@/app/ui/fonts';
 import { fetchLatestInvoices } from '@/app/lib/data';
- 
+
 export default async function LatestInvoices() { // 移除 props
   const latestInvoices = await fetchLatestInvoices();
- 
+
   return (
     // ...
   );
@@ -294,15 +310,16 @@ export default async function LatestInvoices() { // 移除 props
 5.  將 `<CardWrapper />` 包裹在 Suspense 中。
 
 `/app/dashboard/(overview)/page.tsx`
+
 ```tsx
-import CardWrapper from '@/app/ui/dashboard/cards';
+import CardWrapper from "@/app/ui/dashboard/cards";
 // ...
 import {
   RevenueChartSkeleton,
   LatestInvoicesSkeleton,
   CardsSkeleton,
-} from '@/app/ui/skeletons';
- 
+} from "@/app/ui/skeletons";
+
 export default async function Page() {
   return (
     <main>
@@ -323,12 +340,13 @@ export default async function Page() {
 然後，進入檔案 `/app/ui/dashboard/cards.tsx`，匯入 `fetchCardData()` 函數，並在 `<CardWrapper/>` 元件內部調用它。請確保取消此元件中任何必要程式碼的註解。
 
 `/app/ui/dashboard/cards.tsx`
+
 ```tsx
 // ...
-import { fetchCardData } from '@/app/lib/data';
- 
+import { fetchCardData } from "@/app/lib/data";
+
 // ...
- 
+
 export default async function CardWrapper() {
   const {
     numberOfInvoices,
@@ -336,7 +354,7 @@ export default async function CardWrapper() {
     totalPaidInvoices,
     totalPendingInvoices,
   } = await fetchCardData();
- 
+
   return (
     <>
       <Card title="Collected" value={totalPaidInvoices} type="collected" />
@@ -358,21 +376,22 @@ export default async function CardWrapper() {
 
 您放置 Suspense 邊界的位置將取決於幾件事：
 
--   您希望使用者在頁面串流時有怎樣的體驗。
--   您想優先顯示哪些內容。
--   元件是否依賴於資料獲取。
+- 您希望使用者在頁面串流時有怎樣的體驗。
+- 您想優先顯示哪些內容。
+- 元件是否依賴於資料獲取。
 
 看看您的儀表板頁面，您會有什麼不同的作法嗎？
 
 別擔心，沒有標準答案。
 
--   您可以像我們使用 `loading.tsx` 那樣串流整個頁面... 但如果其中一個元件的資料獲取很慢，可能會導致更長的載入時間。
--   您可以單獨串流每個元件... 但這可能會導致 UI 在準備就緒時突然彈出到螢幕上。
--   您也可以通過串流頁面區塊來創造一種交錯的效果。但您需要建立包裝元件。
+- 您可以像我們使用 `loading.tsx` 那樣串流整個頁面... 但如果其中一個元件的資料獲取很慢，可能會導致更長的載入時間。
+- 您可以單獨串流每個元件... 但這可能會導致 UI 在準備就緒時突然彈出到螢幕上。
+- 您也可以通過串流頁面區塊來創造一種交錯的效果。但您需要建立包裝元件。
 
 您放置 Suspense 邊界的位置會根據您的應用程式而有所不同。一般來說，將資料獲取下移到需要它的元件中，然後將這些元件包裹在 Suspense 中是一個好習慣。但如果您的應用程式需要，串流區塊或整個頁面也完全沒有問題。
 
 不要害怕嘗試 Suspense，看看什麼最有效，它是一個強大的 API，可以幫助您創造更愉悅的使用者體驗。
 
 ### 展望未來
+
 串流媒體和伺服器元件為我們提供了處理資料擷取和載入狀態的新方法，最終目標是改善最終用戶體驗。

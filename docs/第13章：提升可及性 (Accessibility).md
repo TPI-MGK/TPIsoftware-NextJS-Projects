@@ -6,9 +6,9 @@
 
 以下是我們將涵蓋的主題：
 
--   如何將 `eslint-plugin-jsx-a11y` 與 Next.js 結合使用，以實施可及性最佳實踐。
--   如何實現伺服器端表單驗證。
--   如何使用 React `useActionState` hook 來處理表單錯誤，並將其顯示給使用者。
+- 如何將 `eslint-plugin-jsx-a11y` 與 Next.js 結合使用，以實施可及性最佳實踐。
+- 如何實現伺服器端表單驗證。
+- 如何使用 React `useActionState` hook 來處理表單錯誤，並將其顯示給使用者。
 
 ## 什麼是可及性 (Accessibility)？
 
@@ -31,12 +31,13 @@ pnpm add -D eslint eslint-config-next
 接下來，在您專案的根目錄中建立一個名為 `eslint.config.mjs` 的檔案，內容如下：
 
 `eslint.config.mjs`
+
 ```javascript
-import { defineConfig, globalIgnores } from 'eslint/config';
-import nextVitals from 'eslint-config-next/core-web-vitals';
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
 const eslintConfig = defineConfig([
   ...nextVitals,
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
 ]);
 export default eslintConfig;
 ```
@@ -46,6 +47,7 @@ export default eslintConfig;
 現在，將一個 `lint` 腳本添加到您的 `package.json` 檔案中：
 
 `/package.json`
+
 ```json
 "scripts": {
     "build": "next build",
@@ -66,6 +68,7 @@ pnpm lint
 前往 `/app/ui/invoices/table.tsx` 並從圖片中移除 `alt` 屬性。您可以使用編輯器的搜尋功能快速找到 `<Image>`：
 
 `/app/ui/invoices/table.tsx`
+
 ```tsx
 <Image
   src={invoice.image_url}
@@ -107,6 +110,7 @@ either with meaningful text, or an empty string for decorative images. jsx-a11y/
 您有幾種方式可以在客戶端驗證表單。最簡單的方法是依賴瀏覽器提供的表單驗證，只需在您的表單中的 `<input>` 和 `<select>` 元素上添加 `required` 屬性即可。例如：
 
 `/app/ui/invoices/create-form.tsx`
+
 ```tsx
 <input
   id="amount"
@@ -125,34 +129,38 @@ either with meaningful text, or an empty string for decorative images. jsx-a11y/
 客戶端驗證的另一種選擇是伺服器端驗證。讓我們在下一節中看看如何實現它。現在，如果您添加了 `required` 屬性，請將其刪除。
 
 通過在伺服器上驗證表單，您可以：
--   確保您的資料在發送到資料庫之前處於預期格式。
--   降低惡意使用者繞過客戶端驗證的風險。
--   對於什麼是有效資料，有一個單一的真理來源。
+
+- 確保您的資料在發送到資料庫之前處於預期格式。
+- 降低惡意使用者繞過客戶端驗證的風險。
+- 對於什麼是有效資料，有一個單一的真理來源。
 
 在您的 `create-form.tsx` 元件中，從 `react` 匯入 `useActionState` hook。由於 `useActionState` 是一個 hook，您需要使用 `"use client"` 指令將您的表單轉變為客戶端元件 (Client Component)：
 
 `/app/ui/invoices/create-form.tsx`
+
 ```tsx
-'use client';
- 
+"use client";
+
 // ...
-import { useActionState } from 'react';
+import { useActionState } from "react";
 ```
 
 在您的 `Form` 元件內部，`useActionState` hook：
--   接受兩個參數：`(action, initialState)`。
--   返回兩個值：`[state, formAction]` - 表單狀態，以及一個在表單提交時要呼叫的函數。
+
+- 接受兩個參數：`(action, initialState)`。
+- 返回兩個值：`[state, formAction]` - 表單狀態，以及一個在表單提交時要呼叫的函數。
 
 將您的 `createInvoice` action 作為 `useActionState` 的參數傳遞，並在您的 `<form action={}>` 屬性中呼叫 `formAction`。
 
 `/app/ui/invoices/create-form.tsx`
+
 ```tsx
 // ...
-import { useActionState } from 'react';
- 
+import { useActionState } from "react";
+
 export default function Form({ customers }: { customers: CustomerField[] }) {
   const [state, formAction] = useActionState(createInvoice, initialState);
- 
+
   return <form action={formAction}>...</form>;
 }
 ```
@@ -160,15 +168,16 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
 `initialState` 可以是您定義的任何東西，在這種情況下，創建一個具有兩個空鍵的物件：`message` 和 `errors`，並從您的 `actions.ts` 檔案匯入 `State` 型別。`State` 尚不存在，但我們接下來會創建它：
 
 `/app/ui/invoices/create-form.tsx`
+
 ```tsx
 // ...
-import { createInvoice, State } from '@/app/lib/actions';
-import { useActionState } from 'react';
- 
+import { createInvoice, State } from "@/app/lib/actions";
+import { useActionState } from "react";
+
 export default function Form({ customers }: { customers: CustomerField[] }) {
   const initialState: State = { message: null, errors: {} };
   const [state, formAction] = useActionState(createInvoice, initialState);
- 
+
   return <form action={formAction}>...</form>;
 }
 ```
@@ -178,29 +187,31 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
 在您的 `actions.ts` 檔案中，您可以使用 Zod 來驗證表單資料。如下更新您的 `FormSchema`：
 
 `/app/lib/actions.ts`
+
 ```ts
 const FormSchema = z.object({
   id: z.string(),
   customerId: z.string({
-    invalid_type_error: 'Please select a customer.',
+    invalid_type_error: "Please select a customer.",
   }),
   amount: z.coerce
     .number()
-    .gt(0, { message: 'Please enter an amount greater than $0.' }),
-  status: z.enum(['pending', 'paid'], {
-    invalid_type_error: 'Please select an invoice status.',
+    .gt(0, { message: "Please enter an amount greater than $0." }),
+  status: z.enum(["pending", "paid"], {
+    invalid_type_error: "Please select an invoice status.",
   }),
   date: z.string(),
 });
 ```
 
--   **customerId** - Zod 已經在客戶欄位為空時拋出錯誤，因為它期望一個 `string` 型別。但讓我們為使用者未選擇客戶時添加一條友好的訊息。
--   **amount** - 由於您正在將 `amount` 的型別從字串強制轉換為數字，如果字串為空，它將預設為零。讓我們使用 `.gt()` 函數告訴 Zod 我們總是希望金額大於 0。
--   **status** - Zod 已經在狀態欄位為空時拋出錯誤，因為它期望 "pending" 或 "paid"。讓我們也為使用者未選擇狀態時添加一條友好的訊息。
+- **customerId** - Zod 已經在客戶欄位為空時拋出錯誤，因為它期望一個 `string` 型別。但讓我們為使用者未選擇客戶時添加一條友好的訊息。
+- **amount** - 由於您正在將 `amount` 的型別從字串強制轉換為數字，如果字串為空，它將預設為零。讓我們使用 `.gt()` 函數告訴 Zod 我們總是希望金額大於 0。
+- **status** - Zod 已經在狀態欄位為空時拋出錯誤，因為它期望 "pending" 或 "paid"。讓我們也為使用者未選擇狀態時添加一條友好的訊息。
 
 接下來，更新您的 `createInvoice` action 以接受兩個參數 - `prevState` 和 `formData`：
 
 `/app/lib/actions.ts`
+
 ```ts
 export type State = {
   errors?: {
@@ -210,25 +221,27 @@ export type State = {
   };
   message?: string | null;
 };
- 
+
 export async function createInvoice(prevState: State, formData: FormData) {
   // ...
 }
 ```
--   `formData` - 與之前相同。
--   `prevState` - 包含從 `useActionState` hook 傳遞的狀態。您在這個範例的 action 中不會使用它，但它是一個必需的 prop。
+
+- `formData` - 與之前相同。
+- `prevState` - 包含從 `useActionState` hook 傳遞的狀態。您在這個範例的 action 中不會使用它，但它是一個必需的 prop。
 
 然後，將 Zod 的 `parse()` 函數更改為 `safeParse()`：
 `/app/lib/actions.ts`
+
 ```ts
 export async function createInvoice(prevState: State, formData: FormData) {
   // 使用 Zod 驗證表單欄位
   const validatedFields = CreateInvoice.safeParse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
+    customerId: formData.get("customerId"),
+    amount: formData.get("amount"),
+    status: formData.get("status"),
   });
- 
+
   // ...
 }
 ```
@@ -237,18 +250,19 @@ export async function createInvoice(prevState: State, formData: FormData) {
 
 在將資訊發送到您的資料庫之前，用一個條件式檢查表單欄位是否已正確驗證：
 `/app/lib/actions.ts`
+
 ```ts
 export async function createInvoice(prevState: State, formData: FormData) {
   // ...
- 
+
   // 如果表單驗證失敗，提早返回錯誤。否則，繼續。
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Create Invoice.',
+      message: "Missing Fields. Failed to Create Invoice.",
     };
   }
- 
+
   // ...
 }
 ```
@@ -259,28 +273,29 @@ export async function createInvoice(prevState: State, formData: FormData) {
 
 最後，由於您正在 `try/catch` 區塊之外單獨處理表單驗證，您可以為任何資料庫錯誤返回一個特定的訊息，您的最終程式碼應如下所示：
 `/app/lib/actions.ts`
+
 ```ts
 export async function createInvoice(prevState: State, formData: FormData) {
   // 使用 Zod 驗證表單
   const validatedFields = CreateInvoice.safeParse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
+    customerId: formData.get("customerId"),
+    amount: formData.get("amount"),
+    status: formData.get("status"),
   });
- 
+
   // 如果表單驗證失敗，提早返回錯誤。否則，繼續。
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Create Invoice.',
+      message: "Missing Fields. Failed to Create Invoice.",
     };
   }
- 
+
   // 準備要插入資料庫的資料
   const { customerId, amount, status } = validatedFields.data;
   const amountInCents = amount * 100;
-  const date = new Date().toISOString().split('T')[0];
- 
+  const date = new Date().toISOString().split("T")[0];
+
   // 將資料插入資料庫
   try {
     await sql`
@@ -290,20 +305,22 @@ export async function createInvoice(prevState: State, formData: FormData) {
   } catch (error) {
     // 如果發生資料庫錯誤，返回更具體的錯誤。
     return {
-      message: 'Database Error: Failed to Create Invoice.',
+      message: "Database Error: Failed to Create Invoice.",
     };
   }
- 
+
   // 為發票頁面重新驗證快取並重新導向使用者。
-  revalidatePath('/dashboard/invoices');
-  redirect('/dashboard/invoices');
+  revalidatePath("/dashboard/invoices");
+  redirect("/dashboard/invoices");
 }
 ```
+
 很好，現在讓我們在您的表單元件中顯示錯誤。回到 `create-form.tsx` 元件，您可以使用表單狀態來存取錯誤。
 
 添加一個三元運算符來檢查每個特定的錯誤。例如，在客戶欄位之後，您可以添加：
 
 `/app/ui/invoices/create-form.tsx`
+
 ```tsx
 <form action={formAction}>
   <div className="rounded-md bg-gray-50 p-4 md:p-6">
@@ -341,9 +358,9 @@ export async function createInvoice(prevState: State, formData: FormData) {
 
 在上面的程式碼中，您還添加了以下 `aria` 標籤：
 
--   `aria-describedby="customer-error"`：這在 `select` 元素和錯誤訊息容器之間建立了一種關係。它表示 `id="customer-error"` 的容器描述了 `select` 元素。當使用者與選擇框互動時，螢幕閱讀器將讀取此描述以通知他們錯誤。
--   `id="customer-error"`：此 `id` 屬性唯一標識了保存 `select` 輸入錯誤訊息的 HTML 元素。這對於 `aria-describedby` 建立關係是必要的。
--   `aria-live="polite"`：當 `div` 內的錯誤更新時，螢幕閱讀器應禮貌地通知使用者。當內容更改時（例如，當使用者更正錯誤時），螢幕閱讀器將宣布這些更改，但只在使用者空閒時才宣布，以免打擾他們。
+- `aria-describedby="customer-error"`：這在 `select` 元素和錯誤訊息容器之間建立了一種關係。它表示 `id="customer-error"` 的容器描述了 `select` 元素。當使用者與選擇框互動時，螢幕閱讀器將讀取此描述以通知他們錯誤。
+- `id="customer-error"`：此 `id` 屬性唯一標識了保存 `select` 輸入錯誤訊息的 HTML 元素。這對於 `aria-describedby` 建立關係是必要的。
+- `aria-live="polite"`：當 `div` 內的錯誤更新時，螢幕閱讀器應禮貌地通知使用者。當內容更改時（例如，當使用者更正錯誤時），螢幕閱讀器將宣布這些更改，但只在使用者空閒時才宣布，以免打擾他們。
 
 ### 練習：添加 Aria 標籤
 
@@ -354,9 +371,10 @@ export async function createInvoice(prevState: State, formData: FormData) {
 如果您想挑戰自己，請將本章學到的知識應用到 `edit-form.tsx` 元件中，添加表單驗證。
 
 您需要：
--   將 `useActionState` 添加到您的 `edit-form.tsx` 元件。
--   編輯 `updateInvoice` action 以處理來自 Zod 的驗證錯誤。
--   在您的元件中顯示錯誤，並添加 `aria` 標籤以改善可及性。
+
+- 將 `useActionState` 添加到您的 `edit-form.tsx` 元件。
+- 編輯 `updateInvoice` action 以處理來自 Zod 的驗證錯誤。
+- 在您的元件中顯示錯誤，並添加 `aria` 標籤以改善可及性。
 
 準備好後，展開下面的程式碼片段查看解決方案：
 
@@ -366,11 +384,12 @@ export async function createInvoice(prevState: State, formData: FormData) {
 **編輯發票表單：**
 
 `/app/ui/invoices/edit-form.tsx`
+
 ```tsx
 // ...
-import { updateInvoice, State } from '@/app/lib/actions';
-import { useActionState } from 'react';
- 
+import { updateInvoice, State } from "@/app/lib/actions";
+import { useActionState } from "react";
+
 export default function EditInvoiceForm({
   invoice,
   customers,
@@ -381,35 +400,36 @@ export default function EditInvoiceForm({
   const initialState: State = { message: null, errors: {} };
   const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
   const [state, formAction] = useActionState(updateInvoiceWithId, initialState);
- 
+
   return <form action={formAction}>{/* ... */}</form>;
 }
 ```
 
 **Server Action：**
 `/app/lib/actions.ts`
+
 ```ts
 export async function updateInvoice(
   id: string,
   prevState: State,
-  formData: FormData,
+  formData: FormData
 ) {
   const validatedFields = UpdateInvoice.safeParse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
+    customerId: formData.get("customerId"),
+    amount: formData.get("amount"),
+    status: formData.get("status"),
   });
- 
+
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Update Invoice.',
+      message: "Missing Fields. Failed to Update Invoice.",
     };
   }
- 
+
   const { customerId, amount, status } = validatedFields.data;
   const amountInCents = amount * 100;
- 
+
   try {
     await sql`
       UPDATE invoices
@@ -417,12 +437,13 @@ export async function updateInvoice(
       WHERE id = ${id}
     `;
   } catch (error) {
-    return { message: 'Database Error: Failed to Update Invoice.' };
+    return { message: "Database Error: Failed to Update Invoice." };
   }
- 
-  revalidatePath('/dashboard/invoices');
-  redirect('/dashboard/invoices');
+
+  revalidatePath("/dashboard/invoices");
+  redirect("/dashboard/invoices");
 }
 ```
+
 </details>
 ```

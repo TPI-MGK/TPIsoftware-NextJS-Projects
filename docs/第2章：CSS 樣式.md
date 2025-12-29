@@ -6,9 +6,9 @@
 
 以下是我們將涵蓋的主題：
 
--   如何為您的應用程式添加全域 CSS 檔案。
--   兩種不同的樣式設定方法：Tailwind 和 CSS Modules。
--   如何使用 `clsx` 工具包有條件地添加 class 名稱。
+- 如何為您的應用程式添加全域 CSS 檔案。
+- 兩種不同的樣式設定方法：Tailwind 和 CSS Modules。
+- 如何使用 `clsx` 工具包有條件地添加 class 名稱。
 
 ## 全域樣式 (Global Styles)
 
@@ -19,9 +19,10 @@
 請導航至 `/app/layout.tsx` 並匯入 `global.css` 檔案，將全域樣式添加到您的應用程式中：
 
 `/app/layout.tsx`
+
 ```tsx
-import '@/app/ui/global.css';
- 
+import "@/app/ui/global.css";
+
 export default function RootLayout({
   children,
 }: {
@@ -37,13 +38,14 @@ export default function RootLayout({
 
 在開發伺服器仍在運行的情況下，儲存您的變更並在瀏覽器中預覽。您的首頁現在應該如下圖所示：
 
-*帶有「Acme」標誌、描述和登入連結的已樣式化頁面。*
+_帶有「Acme」標誌、描述和登入連結的已樣式化頁面。_
 
 但等一下，您並沒有添加任何 CSS 規則，這些樣式是從哪裡來的呢？
 
 如果您查看 `global.css` 的內部，您會注意到一些 `@tailwind` 指令：
 
 `/app/ui/global.css`
+
 ```css
 @tailwind base;
 @tailwind components;
@@ -67,11 +69,12 @@ Tailwind 是一個 CSS 框架，它允許您直接在 JSX/TSX 中快速編寫功
 如果您查看 `/app/page.tsx`，您會看到我們在範例中使用了 Tailwind 的 class：
 
 `/app/page.tsx`
+
 ```tsx
-import AcmeLogo from '@/app/ui/acme-logo';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
- 
+import AcmeLogo from "@/app/ui/acme-logo";
+import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+
 export default function Page() {
   return (
     // 這些是 Tailwind 的 class：
@@ -89,10 +92,9 @@ export default function Page() {
 讓我們來試試 Tailwind！複製下面的程式碼並將其貼到 `/app/page.tsx` 中 `<p>` 元素上方：
 
 `/app/page.tsx`
+
 ```tsx
-<div
-  className="relative w-0 h-0 border-l-[15px] border-r-[15px] border-b-[26px] border-l-transparent border-r-transparent border-b-black"
-/>
+<div className="relative w-0 h-0 border-l-[15px] border-r-[15px] border-b-[26px] border-l-transparent border-r-transparent border-b-black" />
 ```
 
 如果您更喜歡編寫傳統的 CSS 規則或將樣式與 JSX 分開——那麼 CSS Modules 是一個很好的替代方案。
@@ -106,6 +108,7 @@ CSS Modules 允許您將 CSS 的作用域限定在一個元件內，它會自動
 在 `/app/ui` 內，建立一個名為 `home.module.css` 的新檔案，並添加以下 CSS 規則：
 
 `/app/ui/home.module.css`
+
 ```css
 .shape {
   height: 0;
@@ -119,12 +122,13 @@ CSS Modules 允許您將 CSS 的作用域限定在一個元件內，它會自動
 然後，在您的 `/app/page.tsx` 檔案中匯入樣式，並將您剛才添加的 `<div>` 的 Tailwind class 名稱替換為 `styles.shape`：
 
 `/app/page.tsx`
+
 ```tsx
-import AcmeLogo from '@/app/ui/acme-logo';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import styles from '@/app/ui/home.module.css';
- 
+import AcmeLogo from "@/app/ui/acme-logo";
+import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import styles from "@/app/ui/home.module.css";
+
 export default function Page() {
   return (
     <main className="flex min-h-screen flex-col p-6">
@@ -147,24 +151,25 @@ Tailwind 和 CSS Modules 是為 Next.js 應用程式設定樣式的兩種最常�
 
 假設您想要建立一個 `InvoiceStatus` 元件，它接受 `status` 屬性。`status` 可以是 `'pending'` 或 `'paid'`。
 
--   如果狀態是 `'paid'`，您希望顏色是綠色。
--   如果狀態是 `'pending'`，您希望顏色是灰色。
+- 如果狀態是 `'paid'`，您希望顏色是綠色。
+- 如果狀態是 `'pending'`，您希望顏色是灰色。
 
 您可以使用 `clsx` 來有條件地應用這些 class，如下所示：
 
 `/app/ui/invoices/status.tsx`
+
 ```tsx
-import clsx from 'clsx';
- 
+import clsx from "clsx";
+
 export default function InvoiceStatus({ status }: { status: string }) {
   return (
     <span
       className={clsx(
-        'inline-flex items-center rounded-full px-2 py-1 text-sm',
+        "inline-flex items-center rounded-full px-2 py-1 text-sm",
         {
-          'bg-gray-100 text-gray-500': status === 'pending',
-          'bg-green-500 text-white': status === 'paid',
-        },
+          "bg-gray-100 text-gray-500": status === "pending",
+          "bg-green-500 text-white": status === "paid",
+        }
       )}
     >
       {/* ... */}
@@ -177,7 +182,7 @@ export default function InvoiceStatus({ status }: { status: string }) {
 
 除了我們討論過的方法外，您還可以使用以下方式為您的 Next.js 應用程式設定樣式：
 
--   **Sass**：允許您匯入 `.css` 和 `.scss` 檔案。
--   **CSS-in-JS**：使用 `styled-jsx`、`styled-components` 和 `emotion` 等函式庫。
+- **Sass**：允許您匯入 `.css` 和 `.scss` 檔案。
+- **CSS-in-JS**：使用 `styled-jsx`、`styled-components` 和 `emotion` 等函式庫。
 
 查看 Next.js 的 [CSS 文件](https://nextjs.org/docs/app/building-your-application/styling/css-in-js)以獲取更多資訊。
